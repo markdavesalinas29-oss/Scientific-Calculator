@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calculator</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background:
+          radial-gradient(circle at top, rgba(255, 255, 255, 0.04), transparent 30%),
+          linear-gradient(180deg, #020405 0%, #0b0d12 100%);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .calculator {
+        width: min(90vw, 390px);
+        background: linear-gradient(180deg, #11161d, #070b10);
+        border: 2px solid #222b36;
+        border-radius: 26px;
+        padding: 22px 18px 18px;
+        box-shadow:
+          0 0 0 3px rgba(255, 255, 255, 0.04),
+          0 18px 35px rgba(0, 0, 0, 0.7);
+        position: relative;
+      }
+
+      .calculator::before {
+        content: "";
+        position: absolute;
+        inset: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        pointer-events: none;
+      }
+
+      .display {
+        width: 100%;
+        height: 96px;
+        background: linear-gradient(180deg, #0b0d12, #10151b);
+        border: 1px solid #2a3441;
+        border-radius: 16px;
+        color: #f3f6fa;
+        font-size: clamp(2rem, 5vw, 2.8rem);
+        text-align: right;
+        padding: 18px 16px 12px;
+        margin-bottom: 18px;
+        font-weight: 700;
+        box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.02);
+      }
+
+      .buttons {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+      }
+
+      button {
+        border: none;
+        border-radius: 14px;
+        height: 58px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: transform 0.12s ease, filter 0.12s ease, box-shadow 0.12s ease;
+        color: #edf7ff;
+        letter-spacing: 0.04em;
+        position: relative;
+        overflow: hidden;
+      }
+
+      button::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(255,255,255,0.22), transparent 55%);
+        pointer-events: none;
+      }
+
+      button:hover {
+        transform: translateY(-2px) scale(1.01);
+        filter: brightness(1.08);
+      }
+
+      button:active {
+        transform: translateY(1px);
+      }
+
+      .number {
+        background: linear-gradient(180deg, #1a1f2b, #111821);
+        border: 1px solid #2b3745;
+        box-shadow: 0 4px 0 #090d12, 0 8px 18px rgba(0, 0, 0, 0.35);
+      }
+
+      .operator {
+        background: linear-gradient(180deg, #3c4657, #242d38);
+        border: 1px solid #535d6b;
+        box-shadow: 0 4px 0 #141a22, 0 8px 18px rgba(0, 0, 0, 0.35);
+      }
+
+      .special {
+        background: linear-gradient(180deg, #252d39, #1a212c);
+        border: 1px solid #3b4655;
+        box-shadow: 0 4px 0 #0d1117, 0 8px 18px rgba(0, 0, 0, 0.35);
+      }
+
+      .equals {
+        background: linear-gradient(180deg, #2b2f36, #1a1d22);
+        border: 1px solid #5a6470;
+        box-shadow: 0 4px 0 #0d1117, 0 8px 18px rgba(0, 0, 0, 0.35);
+        grid-column: span 2;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="calculator">
+      <input class="display" id="display" type="text" readonly value="0" />
+
+      <div class="buttons">
+        <button class="special" data-action="clear">C</button>
+        <button class="special" data-action="delete">⌫</button>
+        <button class="special" data-func="sqrt">√</button>
+        <button class="special" data-func="pow">x²</button>
+        <button class="operator" data-value="/">÷</button>
+
+        <button class="special" data-func="sin">sin</button>
+        <button class="special" data-func="cos">cos</button>
+        <button class="special" data-func="tan">tan</button>
+        <button class="special" data-func="log">log</button>
+        <button class="operator" data-value="*">×</button>
+
+        <button class="special" data-value="(">(</button>
+        <button class="special" data-value=")">)</button>
+        <button class="special" data-func="pi">π</button>
+        <button class="special" data-func="exp">e</button>
+        <button class="operator" data-value="-">−</button>
+
+        <button class="number" data-value="7">7</button>
+        <button class="number" data-value="8">8</button>
+        <button class="number" data-value="9">9</button>
+        <button class="special" data-func="percent">%</button>
+        <button class="operator" data-value="+">+</button>
+
+        <button class="number" data-value="4">4</button>
+        <button class="number" data-value="5">5</button>
+        <button class="number" data-value="6">6</button>
+        <button class="number" data-value=".">.</button>
+        <button class="special" data-func="ans">Ans</button>
+
+        <button class="number" data-value="1">1</button>
+        <button class="number" data-value="2">2</button>
+        <button class="number" data-value="3">3</button>
+        <button class="number" data-value="0">0</button>
+        <button class="equals" data-action="equals">=</button>
+      </div>
+    </div>
+    <script>
+      const display = document.getElementById("display");
+      let expression = "0";
+      let resetAfterResult = false;
+      let lastAnswer = 0;
+
+      function render() {
+        display.value = expression;
+      }
+
+      function append(value) {
+        if (resetAfterResult) {
+          expression = "";
+          resetAfterResult = false;
+        }
+        expression = expression === "0" && value !== "." ? value : expression + value;
+        render();
+      }
+
+      function operator(value) {
+        if (resetAfterResult) {
+          if (expression === "Error") expression = "0";
+          resetAfterResult = false;
+        }
+        expression = /[+\-*/^]$/.test(expression)
+          ? expression.slice(0, -1) + value
+          : expression + value;
+        render();
+      }
+
+      function clear() {
+        expression = "0";
+        resetAfterResult = false;
+        render();
+      }
+
+      function removeLast() {
+        if (resetAfterResult || expression === "Error" || expression.length <= 1) {
+          expression = "0";
+          resetAfterResult = false;
+        } else {
+          expression = expression.slice(0, -1);
+        }
+        render();
+      }
+
+      function insertFunction(name) {
+        if (resetAfterResult) {
+          expression = "";
+          resetAfterResult = false;
+        }
+        const values = {
+          sqrt: "sqrt(",
+          pow: "^2",
+          sin: "sin(",
+          cos: "cos(",
+          tan: "tan(",
+          log: "log(",
+          pi: "PI",
+          exp: "E",
+          percent: "%",
+          ans: String(lastAnswer),
+        };
+        if (expression === "0") {
+          expression = ["sqrt", "sin", "cos", "tan", "log", "pi", "exp"].includes(name)
+            ? ""
+            : "0";
+        }
+        expression += values[name];
+        render();
+      }
+
+      function calculate(source) {
+        const tokens = [];
+        const pattern = /\s*(\d+(?:\.\d*)?(?:[eE][+-]?\d+)?|\.\d+(?:[eE][+-]?\d+)?|[A-Za-z]+|[()+\-*/^%])/y;
+        let position = 0;
+        while (position < source.length) {
+          pattern.lastIndex = position;
+          const match = pattern.exec(source);
+          if (!match) throw new Error("Invalid expression");
+          tokens.push(match[1]);
+          position = pattern.lastIndex;
+        }
+
+        let cursor = 0;
+        const peek = () => tokens[cursor];
+        const consume = (token) => {
+          if (peek() !== token) throw new Error("Invalid expression");
+          cursor += 1;
+        };
+
+        function parseExpression() {
+          let value = parseTerm();
+          while (peek() === "+" || peek() === "-") {
+            const op = tokens[cursor++];
+            const right = parseTerm();
+            value = op === "+" ? value + right : value - right;
+          }
+          return value;
+        }
+
+        function parseTerm() {
+          let value = parseUnary();
+          while (peek() === "*" || peek() === "/") {
+            const op = tokens[cursor++];
+            const right = parseUnary();
+            value = op === "*" ? value * right : value / right;
+          }
+          return value;
+        }
+
+        function parseUnary() {
+          if (peek() === "+" || peek() === "-") {
+            const op = tokens[cursor++];
+            const value = parseUnary();
+            return op === "-" ? -value : value;
+          }
+          return parsePower();
+        }
+
+        function parsePower() {
+          const base = parsePostfix();
+          if (peek() === "^") {
+            cursor += 1;
+            return Math.pow(base, parseUnary());
+          }
+          return base;
+        }
+
+        function parsePostfix() {
+          let value = parsePrimary();
+          while (peek() === "%") {
+            cursor += 1;
+            value /= 100;
+          }
+          return value;
+        }
+
+        function parsePrimary() {
+          const token = peek();
+          if (token === undefined) throw new Error("Invalid expression");
+          if (token === "(") {
+            cursor += 1;
+            const value = parseExpression();
+            consume(")");
+            return value;
+          }
+          if (/^(?:\d|\.)/.test(token)) {
+            cursor += 1;
+            return Number(token);
+          }
+          if (/^[A-Za-z]+$/.test(token)) {
+            cursor += 1;
+            if (token === "PI") return Math.PI;
+            if (token === "E") return Math.E;
+            const functions = {
+              sqrt: Math.sqrt,
+              sin: Math.sin,
+              cos: Math.cos,
+              tan: Math.tan,
+              log: Math.log10,
+            };
+            if (!functions[token]) throw new Error("Unknown function");
+            consume("(");
+            const argument = parseExpression();
+            consume(")");
+            return functions[token](argument);
+          }
+          throw new Error("Invalid expression");
+        }
+
+        const result = parseExpression();
+        if (cursor !== tokens.length || !Number.isFinite(result)) {
+          throw new Error("Invalid result");
+        }
+        return Object.is(result, -0) ? 0 : result;
+      }
+
+      function evaluate() {
+        try {
+          const result = calculate(expression);
+          expression = String(result);
+          lastAnswer = result;
+          resetAfterResult = true;
+        } catch {
+          expression = "Error";
+          resetAfterResult = true;
+        }
+        render();
+      }
+
+      document.querySelectorAll(".number").forEach((button) => {
+        button.addEventListener("click", () => append(button.dataset.value));
+      });
+      document.querySelectorAll(".operator").forEach((button) => {
+        button.addEventListener("click", () => operator(button.dataset.value));
+      });
+      document.querySelectorAll("[data-func]").forEach((button) => {
+        button.addEventListener("click", () => insertFunction(button.dataset.func));
+      });
+      document.querySelectorAll('[data-value="("], [data-value=")"]').forEach((button) => {
+        button.addEventListener("click", () => append(button.dataset.value));
+      });
+      document.querySelector('[data-action="clear"]').addEventListener("click", clear);
+      document.querySelector('[data-action="delete"]').addEventListener("click", removeLast);
+      document.querySelector('[data-action="equals"]').addEventListener("click", evaluate);
+
+      document.addEventListener("keydown", (event) => {
+        const { key } = event;
+        if (/^[0-9]$/.test(key)) append(key);
+        else if (["+", "-", "*", "/"].includes(key)) operator(key);
+        else if (key === ".") append(".");
+        else if (key === "(" || key === ")") append(key);
+        else if (key === "Enter" || key === "=") {
+          event.preventDefault();
+          evaluate();
+        } else if (key === "Backspace") removeLast();
+        else if (key === "Escape") clear();
+      });
+    </script>
+  </body>
+</html>
